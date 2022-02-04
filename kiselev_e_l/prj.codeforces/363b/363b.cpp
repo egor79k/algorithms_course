@@ -1,3 +1,5 @@
+// Task: https://codeforces.com/contest/363/problem/B
+
 #include <iostream>
 
 
