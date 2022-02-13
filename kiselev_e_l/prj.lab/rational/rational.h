@@ -1,7 +1,7 @@
 #ifndef RATIONAL_H
 #define RATIONAL_H
 
-#include "rational.h"
+#include <exception>
 
 
 class Rational
@@ -36,7 +36,7 @@ public:
 private:
     void shorten();
 
-    int nmr = 0; // nmr < dmr (proper(correct) fraction)
+    int nmr = 0;
     int dmr = 1; // > 0
 };
 
@@ -48,5 +48,11 @@ Rational operator/(const Rational& l, const Rational& r);
 
 std::ostream& operator<<(std::ostream& os, const Rational& r);
 std::istream& operator>>(std::istream& is, Rational& r);
+
+
+class DenominatorIsZero: public std::exception
+{
+  virtual const char* what() const throw();
+};
 
 #endif // RATIONAL_H

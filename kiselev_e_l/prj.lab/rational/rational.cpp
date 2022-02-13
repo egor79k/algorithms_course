@@ -10,12 +10,10 @@ Rational::Rational(const int _nmr, const int _dmr) :
 {
     if (dmr == 0)
     {
-        throw "Denominator is 0";
+        throw DenominatorIsZero();
     }
 
     shorten();
-    // dmr > 0
-    // GCD = 1 (shorten fraction)
 }
 
 
@@ -72,7 +70,7 @@ const Rational& Rational::operator/=(const Rational& r)
 {
     if (0 == r.nmr)
     {
-        throw "Dividing by zero";
+        throw DenominatorIsZero();
     }
 
     nmr *= r.dmr;
@@ -152,8 +150,6 @@ void Rational::shorten()
         nmr = -nmr;
     }
 
-    //if (dmr < nmr)
-
     int n = abs(nmr);
     int d = dmr;
 
@@ -214,4 +210,10 @@ std::istream& operator>>(std::istream& is, Rational& r)
     is >> num >> den;
     r = Rational(num, den);
     return is;
+}
+
+
+const char* DenominatorIsZero::what() const throw()
+{
+    return "Dividing by zero";
 }
