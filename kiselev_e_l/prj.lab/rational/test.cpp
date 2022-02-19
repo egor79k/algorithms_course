@@ -1,6 +1,7 @@
-#include <iostream>
 #include <cmath>
 #include <cstdlib>
+#include <iostream>
+#include <sstream>
 
 #define DOCTEST_CONFIG_IMPLEMENT_WITH_MAIN
 
@@ -16,34 +17,37 @@ TEST_CASE("construction")
     
     // Default constructor
     Rational q0;
-    REQUIRE(q0.getNum() == 0);
-    REQUIRE(q0.getDen() == 1);
+    REQUIRE(q0.num() == 0);
+    REQUIRE(q0.denum() == 1);
 
     int num = rand() - RAND_MAX / 2;
     int den = abs(2 * num + 1);
 
     // One-param constuctor
     Rational q1(num);
-    REQUIRE(q1.getNum() == num);
-    REQUIRE(q1.getDen() == 1);
+    REQUIRE(q1.num() == num);
+    REQUIRE(q1.denum() == 1);
 
     // Two-params constructor
     Rational q2(num, den);
-    REQUIRE(q2.getNum() == num);
-    REQUIRE(q2.getDen() == den);
+    REQUIRE(q2.num() == num);
+    REQUIRE(q2.denum() == den);
+
+    // Zero denum exception
+    CHECK_THROWS(Rational(rand(), 0));
 
     SUBCASE("copy constructor")
     {
         Rational q3(q2);
-        CHECK(q3.getNum() == num);
-        CHECK(q3.getDen() == den);
+        CHECK(q3.num() == num);
+        CHECK(q3.denum() == den);
     }
 
     SUBCASE("assignment constructor")
     {
         q0 = q2;
-        CHECK(q0.getNum() == num);
-        CHECK(q0.getDen() == den);
+        CHECK(q0.num() == num);
+        CHECK(q0.denum() == den);
     }
 }
 
@@ -102,6 +106,55 @@ TEST_CASE("arithmetic operations")
         q1 = q3;
         q1 /= q2;
         CHECK(q1 == Rational(num1 * den2, den1 * num2));
+    }
+
+    Rational q1(rand(), rand() + 1);
+    
+    CHECK_THROWS(q1 / Rational(0, rand()));
+    CHECK_THROWS(q1 /= Rational(0, rand()));
+}
+
+TEST_CASE("special cases")
+{
+    SUBCASE("zero equality")
+    {
+        Rational q1(0, rand() - RAND_MAX / 2);
+        Rational q2(0, rand() - RAND_MAX / 2);
+    
+        CHECK(1 == q1.denum());
+        CHECK(q1 == q2);
+    }
+
+    SUBCASE("operator <<")
+    {
+        int num = rand() - RAND_MAX / 2;
+        int den = rand() + 1;
+
+        std::stringstream output;
+        std::stringstream sample;
+
+        Rational q1(num, den);
+
+        output << q1;
+        sample << q1.num() << "/" << q1.denum(); 
+
+        CHECK(sample.str() == output.str());
+    }
+
+    SUBCASE("operator >>")
+    {
+        int num = rand() - RAND_MAX / 2;
+        int den = rand() + 1;
+
+        std::stringstream input;
+
+        Rational q1;
+        Rational q2(num, den);
+
+        input << num << "/" << den;
+        input >> q1;
+
+        CHECK(q1 == q2);
     }
 }
 

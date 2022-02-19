@@ -15,44 +15,64 @@ public:
     Rational& operator=(Rational&&) = default;
     ~Rational() = default;
 
-    const Rational& operator+=(const Rational& r);
-    const Rational& operator-=(const Rational& r);
-    const Rational& operator*=(const Rational& r);
+    double real() const noexcept;
+    int num() const noexcept;
+    int denum() const noexcept;
+
+    Rational operator-() const noexcept;
+    const Rational& operator+=(const Rational& r) noexcept;
+    const Rational& operator-=(const Rational& r) noexcept;
+    const Rational& operator*=(const Rational& r) noexcept;
     const Rational& operator/=(const Rational& r);
 
-    Rational operator-();
+    bool operator==(const Rational& r) const noexcept;
+    bool operator!=(const Rational& r) const noexcept;
+    bool operator<(const Rational& r) const noexcept;
+    bool operator<=(const Rational& r) const noexcept;
+    bool operator>(const Rational& r) const noexcept;
+    bool operator>=(const Rational& r) const noexcept;
+    
+    std::istream& read_from(std::istream& istrm);
+    std::ostream& write_to(std::ostream& ostrm) const noexcept;
 
-    bool operator==(const Rational& r) const;
-    bool operator!=(const Rational& r) const;
-    bool operator>=(const Rational& r) const;
-    bool operator<=(const Rational& r) const;
-    bool operator>(const Rational& r) const;
-    bool operator<(const Rational& r) const;
-
-    double getReal() const;
-    int getNum() const;
-    int getDen() const;
+    class DenominatorIsZero: public std::exception
+    {
+        virtual const char* what() const throw();
+    };
 
 private:
-    void shorten();
+    void shorten() noexcept;
 
     int nmr = 0;
     int dmr = 1; // > 0
 };
 
 
-Rational operator+(const Rational& l, const Rational& r);
-Rational operator-(const Rational& l, const Rational& r);
-Rational operator*(const Rational& l, const Rational& r);
-Rational operator/(const Rational& l, const Rational& r);
-
-std::ostream& operator<<(std::ostream& os, const Rational& r);
 std::istream& operator>>(std::istream& is, Rational& r);
+std::ostream& operator<<(std::ostream& os, const Rational& r) noexcept;
 
 
-class DenominatorIsZero: public std::exception
+inline Rational operator+(const Rational& l, const Rational& r) noexcept
 {
-  virtual const char* what() const throw();
-};
+    return Rational(l) += r;
+}
+
+
+inline Rational operator-(const Rational& l, const Rational& r) noexcept
+{
+    return Rational(l) -= r;
+}
+
+
+inline Rational operator*(const Rational& l, const Rational& r) noexcept
+{
+    return Rational(l) *= r;
+}
+
+
+inline Rational operator/(const Rational& l, const Rational& r)
+{
+    return Rational(l) /= r;
+}
 
 #endif // RATIONAL_H
