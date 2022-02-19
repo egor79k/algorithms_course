@@ -1,11 +1,11 @@
-#ifndef RATIONAL_H
-#define RATIONAL_H
+#ifndef LAB_RATIONAL_H_
+#define LAB_RATIONAL_H_
 
 #include <exception>
+#include <iostream>
 
 
-class Rational
-{
+class Rational {
 public:
     Rational() = default;
     Rational(const Rational&) = default;
@@ -32,11 +32,10 @@ public:
     bool operator>(const Rational& r) const noexcept;
     bool operator>=(const Rational& r) const noexcept;
     
-    std::istream& read_from(std::istream& istrm);
-    std::ostream& write_to(std::ostream& ostrm) const noexcept;
+    std::istream& read_from(std::istream& is);
+    std::ostream& write_to(std::ostream& os) const noexcept;
 
-    class DenominatorIsZero: public std::exception
-    {
+    class DenominatorIsZero: public std::exception {
         virtual const char* what() const throw();
     };
 
@@ -52,27 +51,23 @@ std::istream& operator>>(std::istream& is, Rational& r);
 std::ostream& operator<<(std::ostream& os, const Rational& r) noexcept;
 
 
-inline Rational operator+(const Rational& l, const Rational& r) noexcept
-{
+inline Rational operator+(const Rational& l, const Rational& r) noexcept {
     return Rational(l) += r;
 }
 
 
-inline Rational operator-(const Rational& l, const Rational& r) noexcept
-{
+inline Rational operator-(const Rational& l, const Rational& r) noexcept {
     return Rational(l) -= r;
 }
 
 
-inline Rational operator*(const Rational& l, const Rational& r) noexcept
-{
+inline Rational operator*(const Rational& l, const Rational& r) noexcept {
     return Rational(l) *= r;
 }
 
 
-inline Rational operator/(const Rational& l, const Rational& r)
-{
+inline Rational operator/(const Rational& l, const Rational& r) {
     return Rational(l) /= r;
 }
 
-#endif // RATIONAL_H
+#endif // LAB_RATIONAL_H_

@@ -1,15 +1,12 @@
-#include <iostream>
-#include <cmath>
-
 #include "rational.h"
+
+#include <cmath>
 
 
 Rational::Rational(const int _nmr, const int _dmr) :
     nmr(_nmr),
-    dmr(_dmr)
-{
-    if (dmr == 0)
-    {
+    dmr(_dmr) {
+    if (dmr == 0) {
         throw DenominatorIsZero();
     }
 
@@ -17,38 +14,31 @@ Rational::Rational(const int _nmr, const int _dmr) :
 }
 
 
-double Rational::real() const noexcept
-{
+double Rational::real() const noexcept {
     return static_cast<double>(nmr) / dmr;
 }
 
 
-int Rational::num() const noexcept
-{
+int Rational::num() const noexcept {
     return nmr;
 }
 
 
-int Rational::denum() const noexcept
-{
+int Rational::denum() const noexcept {
     return dmr;
 }
 
 
-Rational Rational::operator-() const noexcept
-{
+Rational Rational::operator-() const noexcept {
     return Rational(-nmr, dmr);
 }
 
 
-const Rational& Rational::operator+=(const Rational& r) noexcept
-{
-    if (dmr == r.dmr)
-    {
+const Rational& Rational::operator+=(const Rational& r) noexcept {
+    if (dmr == r.dmr) {
         nmr += r.nmr;
     }
-    else
-    {
+    else {
         nmr *= r.dmr;
         nmr += (r.nmr * dmr);
         dmr *= r.dmr;
@@ -60,14 +50,11 @@ const Rational& Rational::operator+=(const Rational& r) noexcept
 }
 
 
-const Rational& Rational::operator-=(const Rational& r) noexcept
-{
-    if (dmr == r.dmr)
-    {
+const Rational& Rational::operator-=(const Rational& r) noexcept {
+    if (dmr == r.dmr) {
         nmr -= r.nmr;
     }
-    else
-    {
+    else {
         nmr *= r.dmr;
         nmr -= (r.nmr * dmr);
         dmr *= r.dmr;
@@ -79,8 +66,7 @@ const Rational& Rational::operator-=(const Rational& r) noexcept
 }
 
 
-const Rational& Rational::operator*=(const Rational& r) noexcept
-{
+const Rational& Rational::operator*=(const Rational& r) noexcept {
     nmr *= r.nmr;
     dmr *= r.dmr;
 
@@ -90,10 +76,8 @@ const Rational& Rational::operator*=(const Rational& r) noexcept
 }
 
 
-const Rational& Rational::operator/=(const Rational& r)
-{
-    if (0 == r.nmr)
-    {
+const Rational& Rational::operator/=(const Rational& r) {
+    if (0 == r.nmr) {
         throw DenominatorIsZero();
     }
 
@@ -106,49 +90,41 @@ const Rational& Rational::operator/=(const Rational& r)
 }
 
 
-bool Rational::operator==(const Rational& r) const noexcept
-{
+bool Rational::operator==(const Rational& r) const noexcept {
     return (nmr == r.nmr) && (dmr == r.dmr);
 }
 
 
-bool Rational::operator!=(const Rational& r) const noexcept
-{
+bool Rational::operator!=(const Rational& r) const noexcept {
     return (nmr != r.nmr) || (dmr != r.dmr);
 }
 
 
-bool Rational::operator<(const Rational& r) const noexcept
-{
+bool Rational::operator<(const Rational& r) const noexcept {
     return (nmr * r.dmr) < (r.nmr * dmr);
 }
 
 
-bool Rational::operator<=(const Rational& r) const noexcept
-{
+bool Rational::operator<=(const Rational& r) const noexcept {
     return (*this < r) || (*this == r);;
 }
 
 
-bool Rational::operator>(const Rational& r) const noexcept
-{
+bool Rational::operator>(const Rational& r) const noexcept {
     return (nmr * r.dmr) > (r.nmr * dmr);
 }
 
 
-bool Rational::operator>=(const Rational& r) const noexcept
-{
+bool Rational::operator>=(const Rational& r) const noexcept {
     return (*this > r) || (*this == r);
 }
 
 
-std::istream& Rational::read_from(std::istream& is)
-{
+std::istream& Rational::read_from(std::istream& is) {
     char sep = 0;
     is >> nmr >> sep >> dmr;
 
-    if (dmr == 0)
-    {
+    if (dmr == 0) {
         throw DenominatorIsZero();
     }
 
@@ -158,23 +134,19 @@ std::istream& Rational::read_from(std::istream& is)
 }
 
 
-std::ostream& Rational::write_to(std::ostream& os) const noexcept
-{
+std::ostream& Rational::write_to(std::ostream& os) const noexcept {
     os << nmr << '/' << dmr;
     return os;
 }
 
 
-const char* Rational::DenominatorIsZero::what() const throw()
-{
+const char* Rational::DenominatorIsZero::what() const throw() {
     return "Dividing by zero";
 }
 
 
-void Rational::shorten() noexcept
-{
-    if (dmr < 0)
-    {
+void Rational::shorten() noexcept {
+    if (dmr < 0) {
         dmr = -dmr;
         nmr = -nmr;
     }
@@ -182,14 +154,11 @@ void Rational::shorten() noexcept
     int n = abs(nmr);
     int d = dmr;
 
-    while (n != 0 && d != 0)
-    {
-        if (d > n)
-        {
+    while (n != 0 && d != 0) {
+        if (d > n) {
             d %= n;
         }
-        else
-        {
+        else {
             n %= d;
         }
     }
@@ -201,15 +170,13 @@ void Rational::shorten() noexcept
 }
 
 
-std::istream& operator>>(std::istream& is, Rational& r)
-{
+std::istream& operator>>(std::istream& is, Rational& r) {
     r.read_from(is);
     return is;
 }
 
 
-std::ostream& operator<<(std::ostream& os, const Rational& r) noexcept
-{
+std::ostream& operator<<(std::ostream& os, const Rational& r) noexcept {
     r.write_to(os);
     return os;
 }
