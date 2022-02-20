@@ -18,13 +18,21 @@ M3i::M3i(const M3i& other) :
 M3i::M3i(M3i&& other) :
     size(other.size),
     data(other.data) {
-    other.clear();
+    other.data = nullptr;
+    other.size = {0, 0, 0};
 }
 
 
 M3i::M3i(const int x, const int y, const int z, const int val) :
     data(new int[x * y * z]),
     size({x, y, z}) {
+    fill(val);
+}
+
+
+M3i::M3i(const M3i::Shape& sz, const int val) :
+    data(new int[sz.volume()]),
+    size(sz) {
     fill(val);
 }
 
@@ -50,7 +58,8 @@ M3i& M3i::operator=(M3i&& other) {
     clear();
     size = other.size;
     data = other.data;
-    other.clear();
+    other.size = {0, 0, 0};
+    other.data = nullptr;
     return *this;
 }
 
@@ -114,6 +123,11 @@ void M3i::resize(const int x, const int y, const int z, const int val) {
 }
 
 
+const M3i::Shape& M3i::get_size() {
+    return size;
+}
+
+
 std::istream& M3i::read_from(std::istream& is) {
     return is;
 }
@@ -133,9 +147,4 @@ std::ostream& M3i::write_to(std::ostream& os) const noexcept {
     }
 
     return os;
-}
-
-
-inline int M3i::Shape::volume() {
-    return x * y * z;
 }
