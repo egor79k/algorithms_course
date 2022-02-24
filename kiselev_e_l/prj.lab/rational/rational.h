@@ -39,6 +39,10 @@ public:
         virtual const char* what() const throw();
     };
 
+    class FormatError: public std::exception {
+        virtual const char* what() const throw();
+    };
+
 private:
     void shorten() noexcept;
 

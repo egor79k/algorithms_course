@@ -124,8 +124,8 @@ std::istream& Rational::read_from(std::istream& is) {
     char sep = 0;
     is >> nmr >> sep >> dmr;
 
-    if (dmr == 0) {
-        throw DenominatorIsZero();
+    if (sep != '/' || dmr <= 0) {
+        throw FormatError();
     }
 
     shorten();
@@ -142,6 +142,11 @@ std::ostream& Rational::write_to(std::ostream& os) const noexcept {
 
 const char* Rational::DenominatorIsZero::what() const throw() {
     return "Dividing by zero";
+}
+
+
+const char* Rational::FormatError::what() const throw() {
+    return "Wrong format";
 }
 
 
