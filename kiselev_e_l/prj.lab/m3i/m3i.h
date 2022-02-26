@@ -5,43 +5,47 @@
 
 class M3i {
 public:
-    struct Shape {
-        inline int volume() const noexcept {
-            return x * y * z;
-        }
+    M3i();
+    M3i(const int x, const int y, const int z);
 
-        int x = 0;
-        int y = 0;
-        int z = 0;
-    };
-
-    M3i() = default;
     M3i(const M3i& other);
-    M3i(M3i&& other);
-    M3i(const int x, const int y, const int z, const int val=0);
-    M3i(const Shape& sz, const int val=0);
     M3i& operator=(const M3i& other);
+
+    M3i(M3i&& other);
     M3i& operator=(M3i&& other);
+    
     ~M3i();
 
-    void clear();
-    void fill(const int val);
+    M3i clone() const;
+    
+    void resize(const int x, const int y, const int z);
+    
     int& at(const int x, const int y, const int z);
-    const int& at(const int x, const int y, const int z) const;
-    void resize(const int x, const int y, const int z, const int val=0);
-    const Shape& get_size();
+    int at(const int x, const int y, const int z) const;
+    
+    int size(const int dim);
+    
+    void fill(const int val);
 
     std::istream& read_from(std::istream& is);
     std::ostream& write_to(std::ostream& os) const noexcept;
 
 private:
-    int *data = nullptr;
-    Shape size = {0, 0, 0};
+    // Clear this copy
+    void clear();
+
+    inline int volume() const noexcept {
+        return ptr->size[0] * ptr->size[1] * ptr->size[2];
+    }
+
+    struct Shared_data {
+        int* data = nullptr;
+        int size[3] = {0, 0, 0};
+        //Shape size = {0, 0, 0};
+        int ref_count = 0;
+    };
+
+    Shared_data* ptr = nullptr;
 };
-
-
-inline bool operator==(const M3i::Shape& l, const M3i::Shape& r) {
-    return (l.x == r.x && l.y == r.y && l.z == r.z);
-}
 
 #endif // LAB_M3I_H_

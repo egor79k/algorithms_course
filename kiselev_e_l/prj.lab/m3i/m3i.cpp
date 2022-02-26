@@ -3,63 +3,47 @@
 #include <algorithm>
 
 
+M3i::M3i() :
+    ptr(new Shared_data{nullptr, {0, 0, 0}, 1})
+{}
+
+
+M3i::M3i(const int x, const int y, const int z) :
+    ptr(new Shared_data{new int[x * y * z], {x, y, z}, 1}) {
+    fill(0);
+}
+
+
 M3i::M3i(const M3i& other) :
-    size(other.size) {
-    if (other.data != nullptr) {
-        data = new int[size.volume()];
-
-        for (int i = 0; i < size.volume(); ++i) {
-            data[i] = other.data[i];
-        }
-    }
-}
-
-
-M3i::M3i(M3i&& other) :
-    size(other.size),
-    data(other.data) {
-    other.data = nullptr;
-    other.size = {0, 0, 0};
-}
-
-
-M3i::M3i(const int x, const int y, const int z, const int val) :
-    data(new int[x * y * z]),
-    size({x, y, z}) {
-    fill(val);
-}
-
-
-M3i::M3i(const M3i::Shape& sz, const int val) :
-    data(new int[sz.volume()]),
-    size(sz) {
-    fill(val);
+    ptr(other.ptr) {
+    ptr->ref_count++;
 }
 
 
 M3i& M3i::operator=(const M3i& other) {
     clear();
 
-    size = other.size;
-
-    if (other.data != nullptr) {
-        data = new int[size.volume()];
-
-        for (int i = 0; i < size.volume(); ++i) {
-            data[i] = other.data[i];
-        }
-    }
+    ptr = other.ptr;
+    ptr->ref_count++;
 
     return *this;
 }
 
 
+M3i::M3i(M3i&& other) :
+    ptr(other.ptr) {
+    ptr->ref_count++;
+    other.clear();
+}
+
+
 M3i& M3i::operator=(M3i&& other) {
     clear();
-    size = other.size;
-    data = other.data;
-    other.size = {0, 0, 0};
-    other.data = nullptr;
+    
+    ptr = other.ptr;
+    ptr->ref_count++;
+    other.clear();
+
     return *this;
 }
 
@@ -69,62 +53,68 @@ M3i::~M3i() {
 }
 
 
-void M3i::clear() {
-    if (data != nullptr) {
-        delete[] data;
-        data = nullptr;
+M3i M3i::clone() const {
+    M3i other(ptr->size[0], ptr->size[1], ptr->size[2]);
+
+    for (int i = 0; i < volume(); ++i) {
+        other.ptr->data[i] = ptr->data[i];
     }
 
-    size = {0, 0, 0};
+    return other;
 }
 
 
-void M3i::fill(const int val) {
-    for (int i = 0; i < size.volume(); ++i) {
-        data[i] = val;
-    }
-}
-
-
-int& M3i::at(const int x, const int y, const int z) {
-    return data[x * size.y * size.z + y * size.z + z];
-}
-
-
-const int& M3i::at(const int x, const int y, const int z) const {
-    return data[x * size.y * size.z + y * size.z + z];
-}
-
-
-void M3i::resize(const int x, const int y, const int z, const int val) {
-    int *old_data = data;
-    Shape old_size = size;
+void M3i::resize(const int x, const int y, const int z) {
+    int *old_data = ptr->data;
+    int old_size[3] = {ptr->size[0], ptr->size[1], ptr->size[2]};
 
     if (x > 0 && y > 0 && z > 0) {
-        size = {x, y, z};
-        data = new int[size.volume()];
+        ptr->size[0] = x;
+        ptr->size[1] = y;
+        ptr->size[2] = z;
+        ptr->data = new int[volume()];
 
-        fill(val);
+        fill(0);
 
-        for (int x_id = 0; x_id < std::min(size.x, old_size.x); ++x_id) {
-            for (int y_id = 0; y_id < std::min(size.y, old_size.y); ++y_id) {
-                for (int z_id = 0; z_id < std::min(size.z, old_size.z); ++z_id) {
-                    at(x_id, y_id, z_id) = old_data[x_id * old_size.y * old_size.z + y_id * old_size.z + z_id];
+        for (int x_id = 0; x_id < std::min(ptr->size[0], old_size[0]); ++x_id) {
+            for (int y_id = 0; y_id < std::min(ptr->size[1], old_size[1]); ++y_id) {
+                for (int z_id = 0; z_id < std::min(ptr->size[2], old_size[2]); ++z_id) {
+                    at(x_id, y_id, z_id) = old_data[x_id * old_size[1] * old_size[2] + y_id * old_size[2] + z_id];
                 }
             }
         }
     }
     else {
-        size = {0, 0, 0};
-        data = nullptr;
+        ptr->size[0] = 0;
+        ptr->size[1] = 0;
+        ptr->size[2] = 0;
+        ptr->data = nullptr;
     }
 
     delete[] old_data;
 }
 
 
-const M3i::Shape& M3i::get_size() {
-    return size;
+
+int& M3i::at(const int x, const int y, const int z) {
+    return ptr->data[x * ptr->size[1] * ptr->size[2] + y * ptr->size[2] + z];
+}
+
+
+int M3i::at(const int x, const int y, const int z) const {
+    return ptr->data[x * ptr->size[1] * ptr->size[2] + y * ptr->size[2] + z];
+}
+
+
+int M3i::size(const int dim) {
+    return ptr->size[dim];
+}
+
+
+void M3i::fill(const int val) {
+    for (int i = 0; i < volume(); ++i) {
+        ptr->data[i] = val;
+    }
 }
 
 
@@ -134,9 +124,9 @@ std::istream& M3i::read_from(std::istream& is) {
 
 
 std::ostream& M3i::write_to(std::ostream& os) const noexcept {
-    for (int x_id = 0; x_id < size.x; ++x_id) {
-        for (int y_id = 0; y_id < size.y; ++y_id) {
-            for (int z_id = 0; z_id < size.z; ++z_id) {
+    for (int x_id = 0; x_id < ptr->size[0]; ++x_id) {
+        for (int y_id = 0; y_id < ptr->size[1]; ++y_id) {
+            for (int z_id = 0; z_id < ptr->size[2]; ++z_id) {
                 os << at(x_id, y_id, z_id) << " ";
             }
 
@@ -147,4 +137,23 @@ std::ostream& M3i::write_to(std::ostream& os) const noexcept {
     }
 
     return os;
+}
+
+
+void M3i::clear() {
+    if (ptr == nullptr) {
+        return;
+    }
+
+    ptr->ref_count--;
+
+    if (0 == ptr->ref_count) {
+        if (ptr->data != nullptr) {
+            delete[] ptr->data;
+        }
+
+        delete ptr;
+    }
+
+    ptr = nullptr;
 }
