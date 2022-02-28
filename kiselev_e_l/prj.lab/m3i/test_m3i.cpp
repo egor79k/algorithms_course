@@ -148,4 +148,34 @@ TEST_CASE("shared data") {
     }
 }
 
+TEST_CASE("input and output") {
+    int size[3] = {rand() % 100 + 1, rand() % 100 + 1, rand() % 100 + 1};
+
+    M3i m1(size[0], size[1], size[2]);
+
+    // Filling tensor with random values
+    for (int x_id = 0; x_id < size[0]; ++x_id) {
+        for (int y_id = 0; y_id < size[1]; ++y_id) {
+            for (int z_id = 0; z_id < size[2]; ++z_id) {
+                m1.at(x_id, y_id, z_id) = rand();
+            }
+        }
+    }
+
+    std::stringstream str;
+    M3i m2;
+
+    str << m1.size(0) << " " << m1.size(1) << " " << m1.size(2) << " \n" << m1;
+
+    str >> m2;
+
+    for (int x_id = 0; x_id < size[0]; ++x_id) {
+        for (int y_id = 0; y_id < size[1]; ++y_id) {
+            for (int z_id = 0; z_id < size[2]; ++z_id) {
+                CHECK(m1.at(x_id, y_id, z_id) == m2.at(x_id, y_id, z_id));
+            }
+        }
+    }
+}
+
 TEST_SUITE_END();

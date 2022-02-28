@@ -106,7 +106,7 @@ int M3i::at(const int x, const int y, const int z) const {
 }
 
 
-int M3i::size(const int dim) {
+int M3i::size(const int dim) const {
     return ptr->size[dim];
 }
 
@@ -115,28 +115,6 @@ void M3i::fill(const int val) {
     for (int i = 0; i < volume(); ++i) {
         ptr->data[i] = val;
     }
-}
-
-
-std::istream& M3i::read_from(std::istream& is) {
-    return is;
-}
-
-
-std::ostream& M3i::write_to(std::ostream& os) const noexcept {
-    for (int x_id = 0; x_id < ptr->size[0]; ++x_id) {
-        for (int y_id = 0; y_id < ptr->size[1]; ++y_id) {
-            for (int z_id = 0; z_id < ptr->size[2]; ++z_id) {
-                os << at(x_id, y_id, z_id) << " ";
-            }
-
-            os << "\n";
-        }
-
-        os << "\n";
-    }
-
-    return os;
 }
 
 
@@ -156,4 +134,40 @@ void M3i::clear() {
     }
 
     ptr = nullptr;
+}
+
+
+std::istream& operator>>(std::istream& is, M3i& r) {
+    int size[3] = {};
+
+    is >> size[0] >> size[1] >> size[2];
+
+    r.resize(size[0], size[1], size[2]);
+
+    for (int x_id = 0; x_id < size[0]; ++x_id) {
+        for (int y_id = 0; y_id < size[1]; ++y_id) {
+            for (int z_id = 0; z_id < size[2]; ++z_id) {
+                is >> r.at(x_id, y_id, z_id);
+            }
+        }
+    }
+
+    return is;
+}
+
+
+std::ostream& operator<<(std::ostream& os, const M3i& r) noexcept {
+    for (int x_id = 0; x_id < r.size(0); ++x_id) {
+        for (int y_id = 0; y_id < r.size(1); ++y_id) {
+            for (int z_id = 0; z_id < r.size(2); ++z_id) {
+                os << r.at(x_id, y_id, z_id) << " ";
+            }
+
+            os << "\n";
+        }
+
+        os << "\n";
+    }
+
+    return os;
 }
