@@ -2,17 +2,17 @@
 #include <cstdlib>
 #include <iostream>
 #include <sstream>
+#include <vector>
 
 #define DOCTEST_CONFIG_IMPLEMENT_WITH_MAIN
 
-#include "doctest.h"
+#include <doctest/doctest.h>
 #include "rational.h"
 
 
 TEST_SUITE_BEGIN("rational");
 
-TEST_CASE("construction")
-{
+TEST_CASE("construction") {
     srand(42);
     
     // Default constructor
@@ -36,23 +36,20 @@ TEST_CASE("construction")
     // Zero denum exception
     CHECK_THROWS(Rational(rand(), 0));
 
-    SUBCASE("copy constructor")
-    {
+    SUBCASE("copy constructor") {
         Rational q3(q2);
         CHECK(q3.num() == num);
         CHECK(q3.denum() == den);
     }
 
-    SUBCASE("assignment constructor")
-    {
+    SUBCASE("assignment constructor") {
         q0 = q2;
         CHECK(q0.num() == num);
         CHECK(q0.denum() == den);
     }
 }
 
-TEST_CASE("compare operations")
-{
+TEST_CASE("compare operations") {
     int num = rand() - RAND_MAX / 2;
     int den = rand() + 1;
     int diff = 1;
@@ -72,12 +69,10 @@ TEST_CASE("compare operations")
     CHECK(q1 > q4);
 }
 
-TEST_CASE("arithmetic operations")
-{
+TEST_CASE("arithmetic operations") {
     int iter = 100;
 
-    while (iter--)
-    {
+    while (iter--) {
         int num1 = (rand() - RAND_MAX / 2) % 10000;
         int den1 = rand() % 10000 + 1;
         int num2 = (rand() - RAND_MAX / 2) % 10000;
@@ -114,10 +109,8 @@ TEST_CASE("arithmetic operations")
     CHECK_THROWS(q1 /= Rational(0, rand()));
 }
 
-TEST_CASE("special cases")
-{
-    SUBCASE("zero equality")
-    {
+TEST_CASE("special cases") {
+    SUBCASE("zero equality") {
         Rational q1(0, rand() - RAND_MAX / 2);
         Rational q2(0, rand() - RAND_MAX / 2);
     
@@ -125,36 +118,50 @@ TEST_CASE("special cases")
         CHECK(q1 == q2);
     }
 
-    SUBCASE("operator <<")
-    {
-        int num = rand() - RAND_MAX / 2;
-        int den = rand() + 1;
+    struct Fraction {
+        std::string str;
+        int nmr;
+        int dmr;
+    };
 
-        std::stringstream output;
-        std::stringstream sample;
+    const std::vector<Fraction> fractions{{"3/4", 3, 4},
+                                          {"-1/125", 1, -125},
+                                          {"0/1", 0, 1},
+                                          {"428/1517", -428, -1517},
+                                          {"1/1", 1024, 1024},
+                                          {"-8/9", -8, 9},
+                                          {"17/380", 17, 380},
+                                          {"-12345/1", 12345, -1}};
 
-        Rational q1(num, den);
+    SUBCASE("operator <<") {
+        for (auto frac : fractions) {
+            std::stringstream output;
+            Rational q1(frac.nmr, frac.dmr);
 
-        output << q1;
-        sample << q1.num() << "/" << q1.denum(); 
+            output << q1;
 
-        CHECK(sample.str() == output.str());
+            CHECK(output.str() == frac.str);
+        }
     }
 
-    SUBCASE("operator >>")
-    {
-        int num = rand() - RAND_MAX / 2;
-        int den = rand() + 1;
+    SUBCASE("operator >>") {
+        for (auto frac : fractions) {
+            std::stringstream input(frac.str);
+            Rational q1;
 
-        std::stringstream input;
+            input >> q1;
 
-        Rational q1;
-        Rational q2(num, den);
+            CHECK(Rational(frac.nmr, frac.dmr) == q1);
+        }
 
-        input << num << "/" << den;
-        input >> q1;
+        std::vector<const char*> bad_input{"16/0", "9/-81", "3 15", "4\\80", "1 / 25", "7/ 8", "5 /17"};
 
-        CHECK(q1 == q2);
+        for (auto str : bad_input) {
+            std::stringstream input(str);
+            Rational q1;
+
+            CHECK_THROWS(input >> q1);
+        }
     }
 }
 

@@ -1,6 +1,6 @@
 project(rational)
 
-include_directories(../../prj.parts/doctest)
+include_directories(../../prj.parts)
 
 add_library(rational rational.h rational.cpp)
 
