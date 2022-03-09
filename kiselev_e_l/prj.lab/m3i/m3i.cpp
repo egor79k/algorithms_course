@@ -21,6 +21,8 @@ M3i::M3i(const M3i& other) :
 
 
 M3i& M3i::operator=(const M3i& other) {
+    std::lock_guard<std::mutex> guard(ptr->data_mutex);
+
     clear();
 
     ptr = other.ptr;
@@ -33,15 +35,21 @@ M3i& M3i::operator=(const M3i& other) {
 M3i::M3i(M3i&& other) :
     ptr(other.ptr) {
     ptr->ref_count++;
+
+    std::lock_guard<std::mutex> guard(other.ptr->data_mutex);
+
     other.clear();
 }
 
 
 M3i& M3i::operator=(M3i&& other) {
+    std::lock_guard<std::mutex> guard(ptr->data_mutex);
+
     clear();
-    
+
     ptr = other.ptr;
     ptr->ref_count++;
+
     other.clear();
 
     return *this;
@@ -49,11 +57,14 @@ M3i& M3i::operator=(M3i&& other) {
 
 
 M3i::~M3i() {
+    std::lock_guard<std::mutex> guard(ptr->data_mutex);
     clear();
 }
 
 
 M3i M3i::clone() const {
+    std::lock_guard<std::mutex> guard(ptr->data_mutex);
+
     M3i other(ptr->size[0], ptr->size[1], ptr->size[2]);
 
     for (int i = 0; i < volume(); ++i) {
@@ -65,6 +76,8 @@ M3i M3i::clone() const {
 
 
 void M3i::resize(const int x, const int y, const int z) {
+    std::lock_guard<std::mutex> guard(ptr->data_mutex);
+
     int *old_data = ptr->data;
     int old_size[3] = {ptr->size[0], ptr->size[1], ptr->size[2]};
 
@@ -97,6 +110,7 @@ void M3i::resize(const int x, const int y, const int z) {
 
 
 int& M3i::at(const int x, const int y, const int z) {
+    std::lock_guard<std::mutex> guard(ptr->data_mutex);
     return ptr->data[x * ptr->size[1] * ptr->size[2] + y * ptr->size[2] + z];
 }
 
@@ -112,9 +126,51 @@ int M3i::size(const int dim) const {
 
 
 void M3i::fill(const int val) {
+    std::lock_guard<std::mutex> guard(ptr->data_mutex);
+
     for (int i = 0; i < volume(); ++i) {
         ptr->data[i] = val;
     }
+}
+
+
+std::istream& M3i::read_from(std::istream& is) {
+    int size[3] = {};
+
+    is >> size[0] >> size[1] >> size[2];
+    
+    std::lock_guard<std::mutex> guard(ptr->data_mutex);
+
+    resize(size[0], size[1], size[2]);
+
+    for (int x_id = 0; x_id < size[0]; ++x_id) {
+        for (int y_id = 0; y_id < size[1]; ++y_id) {
+            for (int z_id = 0; z_id < size[2]; ++z_id) {
+                is >> at(x_id, y_id, z_id);
+            }
+        }
+    }
+
+    return is;
+}
+
+
+std::ostream& M3i::write_to(std::ostream& os) const noexcept {
+    std::lock_guard<std::mutex> guard(ptr->data_mutex);
+    
+    for (int x_id = 0; x_id < ptr->size[0]; ++x_id) {
+        for (int y_id = 0; y_id < ptr->size[1]; ++y_id) {
+            for (int z_id = 0; z_id < ptr->size[2]; ++z_id) {
+                os << at(x_id, y_id, z_id) << " ";
+            }
+
+            os << "\n";
+        }
+
+        os << "\n";
+    }
+
+    return os;
 }
 
 
@@ -138,36 +194,12 @@ void M3i::clear() {
 
 
 std::istream& operator>>(std::istream& is, M3i& r) {
-    int size[3] = {};
-
-    is >> size[0] >> size[1] >> size[2];
-
-    r.resize(size[0], size[1], size[2]);
-
-    for (int x_id = 0; x_id < size[0]; ++x_id) {
-        for (int y_id = 0; y_id < size[1]; ++y_id) {
-            for (int z_id = 0; z_id < size[2]; ++z_id) {
-                is >> r.at(x_id, y_id, z_id);
-            }
-        }
-    }
-
+    r.read_from(is);
     return is;
 }
 
 
 std::ostream& operator<<(std::ostream& os, const M3i& r) noexcept {
-    for (int x_id = 0; x_id < r.size(0); ++x_id) {
-        for (int y_id = 0; y_id < r.size(1); ++y_id) {
-            for (int z_id = 0; z_id < r.size(2); ++z_id) {
-                os << r.at(x_id, y_id, z_id) << " ";
-            }
-
-            os << "\n";
-        }
-
-        os << "\n";
-    }
-
+    r.write_to(os);
     return os;
 }

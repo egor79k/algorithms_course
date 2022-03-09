@@ -2,6 +2,7 @@
 #define LAB_M3I_H_
 
 #include <iostream>
+#include <mutex>
 
 class M3i {
 public:
@@ -27,6 +28,9 @@ public:
     
     void fill(const int val);
 
+    std::istream& read_from(std::istream& is);
+    std::ostream& write_to(std::ostream& os) const noexcept;
+
 private:
     // Clear this copy
     void clear();
@@ -39,6 +43,7 @@ private:
         int* data = nullptr;
         int size[3] = {0, 0, 0};
         int ref_count = 0;
+        std::mutex data_mutex;
     };
 
     Shared_data* ptr = nullptr;
