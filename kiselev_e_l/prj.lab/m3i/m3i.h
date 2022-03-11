@@ -32,6 +32,10 @@ public:
     std::istream& read_from(std::istream& is);
     std::ostream& write_to(std::ostream& os) const noexcept;
 
+    class WrongSize: public std::exception {
+        virtual const char* what() const throw();
+    };
+
 private:
     // Clear this copy
     void clear();

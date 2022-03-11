@@ -6,17 +6,19 @@
 M3i::Shared_data::Shared_data(int *_data, const int x, const int y, const int z, const int _ref_count) :
     data(_data),
     size{x, y, z},
-    ref_count{_ref_count}
-{} 
+    ref_count{_ref_count} {} 
 
 
 M3i::M3i() :
-    ptr(new Shared_data(nullptr, 0, 0, 0, 1))
-{}
+    ptr(new Shared_data(nullptr, 0, 0, 0, 1)) {}
 
 
 M3i::M3i(const int x, const int y, const int z) :
     ptr(new Shared_data(new int[x * y * z], x, y, z, 1)) {
+    if (x <= 0 || y <= 0 || z <= 0) {
+        throw WrongSize();
+    }
+
     std::lock_guard<std::mutex> guard(ptr->data_mutex);
     fill(0);
 }
@@ -86,6 +88,10 @@ M3i M3i::clone() const {
 
 
 void M3i::resize(const int x, const int y, const int z) {
+    if (x <= 0 || y <= 0 || z <= 0) {
+        throw WrongSize();
+    }
+
     std::lock_guard<std::mutex> guard(ptr->data_mutex);
 
     int *old_data = ptr->data;
@@ -183,6 +189,11 @@ std::ostream& M3i::write_to(std::ostream& os) const noexcept {
     }
 
     return os;
+}
+
+
+const char* M3i::WrongSize::what() const throw() {
+    return "Wrong size";
 }
 
 
