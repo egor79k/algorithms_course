@@ -3,13 +3,21 @@
 #include <algorithm>
 
 
+M3i::Shared_data::Shared_data(int *_data, const int x, const int y, const int z, const int _ref_count) :
+    data(_data),
+    size{x, y, z},
+    ref_count{_ref_count}
+{} 
+
+
 M3i::M3i() :
-    ptr(new Shared_data{nullptr, {0, 0, 0}, 1})
+    ptr(new Shared_data(nullptr, 0, 0, 0, 1))
 {}
 
 
 M3i::M3i(const int x, const int y, const int z) :
-    ptr(new Shared_data{new int[x * y * z], {x, y, z}, 1}) {
+    ptr(new Shared_data(new int[x * y * z], x, y, z, 1)) {
+    std::lock_guard<std::mutex> guard(ptr->data_mutex);
     fill(0);
 }
 
@@ -36,19 +44,21 @@ M3i::M3i(M3i&& other) :
     ptr(other.ptr) {
     ptr->ref_count++;
 
-    std::lock_guard<std::mutex> guard(other.ptr->data_mutex);
+    std::lock_guard<std::mutex> guard(ptr->data_mutex);
 
     other.clear();
 }
 
 
 M3i& M3i::operator=(M3i&& other) {
-    std::lock_guard<std::mutex> guard(ptr->data_mutex);
+    std::lock_guard<std::mutex> guard_1(ptr->data_mutex);
 
     clear();
 
     ptr = other.ptr;
     ptr->ref_count++;
+
+    std::lock_guard<std::mutex> guard_2(ptr->data_mutex);
 
     other.clear();
 
@@ -116,11 +126,13 @@ int& M3i::at(const int x, const int y, const int z) {
 
 
 int M3i::at(const int x, const int y, const int z) const {
+    std::lock_guard<std::mutex> guard(ptr->data_mutex);
     return ptr->data[x * ptr->size[1] * ptr->size[2] + y * ptr->size[2] + z];
 }
 
 
 int M3i::size(const int dim) const {
+    std::lock_guard<std::mutex> guard(ptr->data_mutex);
     return ptr->size[dim];
 }
 

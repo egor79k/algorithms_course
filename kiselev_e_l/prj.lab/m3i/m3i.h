@@ -1,6 +1,7 @@
 #ifndef LAB_M3I_H_
 #define LAB_M3I_H_
 
+#include <atomic>
 #include <iostream>
 #include <mutex>
 
@@ -40,9 +41,11 @@ private:
     }
 
     struct Shared_data {
+        Shared_data(int* _data, const int x, const int y, const int z, const int _ref_count);
+
         int* data = nullptr;
         int size[3] = {0, 0, 0};
-        int ref_count = 0;
+        std::atomic<int> ref_count{0}; // Сделать счетчик атомарным
         std::mutex data_mutex;
     };
 

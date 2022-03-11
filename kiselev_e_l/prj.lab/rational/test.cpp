@@ -151,6 +151,7 @@ TEST_CASE("special cases") {
 
             input >> q1;
 
+            CHECK(!input.fail());
             CHECK(Rational(frac.nmr, frac.dmr) == q1);
         }
 
@@ -160,7 +161,9 @@ TEST_CASE("special cases") {
             std::stringstream input(str);
             Rational q1;
 
-            CHECK_THROWS(input >> q1);
+            input >> q1;
+            //CHECK_THROWS(input >> q1);
+            CHECK(input.fail());
         }
     }
 }

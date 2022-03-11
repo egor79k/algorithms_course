@@ -122,16 +122,17 @@ bool Rational::operator>=(const Rational& r) const noexcept {
 
 std::istream& Rational::read_from(std::istream& is) {
     char sep = 0;
+
     is >> nmr;
 
     if (is.get() != '/' || !isdigit(is.peek())) {
-        throw FormatError();
+        is.setstate(std::ios_base::failbit);
     }
 
     is >> dmr;
 
     if (dmr <= 0) {
-        throw FormatError();
+        is.setstate(std::ios_base::failbit);
     }
 
     shorten();
@@ -148,11 +149,6 @@ std::ostream& Rational::write_to(std::ostream& os) const noexcept {
 
 const char* Rational::DenominatorIsZero::what() const throw() {
     return "Dividing by zero";
-}
-
-
-const char* Rational::FormatError::what() const throw() {
-    return "Wrong format";
 }
 
 
