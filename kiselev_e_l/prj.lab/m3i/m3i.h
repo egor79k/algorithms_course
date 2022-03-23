@@ -18,19 +18,19 @@ public:
     
     ~M3i();
 
-    M3i clone() const;
+    M3i Clone() const;
     
-    void resize(const int x, const int y, const int z);
+    void Resize(const int x, const int y, const int z);
     
-    int& at(const int x, const int y, const int z);
-    int at(const int x, const int y, const int z) const;
+    int& At(const int x, const int y, const int z);
+    int At(const int x, const int y, const int z) const;
     
-    int size(const int dim) const;
+    int Size(const int dim) const;
     
-    void fill(const int val);
+    void Fill(const int val);
 
-    std::istream& read_from(std::istream& is);
-    std::ostream& write_to(std::ostream& os) const noexcept;
+    std::istream& ReadFrom(std::istream& is);
+    std::ostream& WriteTo(std::ostream& os) const noexcept;
 
     class WrongSize: public std::exception {
         virtual const char* what() const throw();
@@ -38,14 +38,14 @@ public:
 
 private:
     // Clear this copy
-    void clear();
+    void Clear();
 
-    inline int volume() const noexcept {
+    inline int Volume() const noexcept {
         return ptr->size[0] * ptr->size[1] * ptr->size[2];
     }
 
-    struct Shared_data {
-        Shared_data(int* _data, const int x, const int y, const int z, const int _ref_count);
+    struct SharedData {
+        SharedData(int* _data, const int x, const int y, const int z, const int _ref_count);
 
         int* data = nullptr;
         int size[3] = {0, 0, 0};
@@ -53,7 +53,7 @@ private:
         std::mutex data_mutex;
     };
 
-    Shared_data* ptr = nullptr;
+    SharedData* ptr = nullptr;
 };
 
 std::istream& operator>>(std::istream& is, M3i& r);
