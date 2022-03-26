@@ -1,6 +1,7 @@
-#include "m3i.h"
-
 #include <algorithm>
+
+#include <m3i/m3i.h>
+
 
 
 M3i::SharedData::SharedData(int *_data, const int x, const int y, const int z, const int _ref_count) :
@@ -21,6 +22,32 @@ M3i::M3i(const int x, const int y, const int z) :
 
     std::lock_guard<std::mutex> guard(ptr->data_mutex);
     Fill(0);
+}
+
+
+M3i::M3i(const std::initializer_list<std::initializer_list<std::initializer_list<int>>>& list_3d) :
+    ptr(new SharedData(new int[list_3d.size() * list_3d.begin()->size() * list_3d.begin()->begin()->size()],
+        list_3d.size(),
+        list_3d.begin()->size(),
+        list_3d.begin()->begin()->size(),
+        1)) {
+    int x_id = 0;
+
+    for (const auto &list_2d : list_3d) {
+        int y_id = 0;
+
+        for (const auto &list_1d : list_2d) {
+            int z_id = 0;
+
+            for (const auto &val : list_1d) {
+                At(x_id, y_id, z_id) = val;
+
+                ++z_id;
+            }
+            ++y_id;
+        }
+        ++x_id;
+    }
 }
 
 
@@ -175,6 +202,8 @@ std::istream& M3i::ReadFrom(std::istream& is) {
 
 std::ostream& M3i::WriteTo(std::ostream& os) const noexcept {
     std::lock_guard<std::mutex> guard(ptr->data_mutex);
+
+    os << ptr->size[0] << " " << ptr->size[1] << " " << ptr->size[2] << std::endl;
     
     for (int x_id = 0; x_id < ptr->size[0]; ++x_id) {
         for (int y_id = 0; y_id < ptr->size[1]; ++y_id) {

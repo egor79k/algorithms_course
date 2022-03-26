@@ -1,19 +1,15 @@
 #include <iostream>
+#include <sstream>
 
 #define DOCTEST_CONFIG_IMPLEMENT_WITH_MAIN
 
 #include <doctest/doctest.h>
 
-#include "m3i.h"
+#include <m3i/m3i.h>
 
 
 TEST_SUITE_BEGIN("m3i");
 
-//const M3i::Shape zero({0, 0, 0});
-/*
-inline bool operator==(const int[3]& l, const int[3]& r) {
-    return (l[0] == r[0] && l[1] == r[1] && l[2] == r[2]);
-*/
 TEST_CASE("construction") {
     srand(42);
     
@@ -164,9 +160,9 @@ TEST_CASE("input and output") {
     std::stringstream str;
     M3i m2;
 
-    str << m1.Size(0) << " " << m1.Size(1) << " " << m1.Size(2) << " \n" << m1;
+    str << m1;
 
-    str >> m2;
+    CHECK_NOTHROW(str >> m2);
 
     for (int x_id = 0; x_id < size[0]; ++x_id) {
         for (int y_id = 0; y_id < size[1]; ++y_id) {

@@ -2,6 +2,7 @@
 #define LAB_M3I_H_
 
 #include <atomic>
+#include <initializer_list>
 #include <iostream>
 #include <mutex>
 
@@ -9,6 +10,7 @@ class M3i {
 public:
     M3i();
     M3i(const int x, const int y, const int z);
+    M3i(const std::initializer_list<std::initializer_list<std::initializer_list<int>>>& list_3d);
 
     M3i(const M3i& other);
     M3i& operator=(const M3i& other);
