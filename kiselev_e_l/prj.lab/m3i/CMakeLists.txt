@@ -1,6 +1,6 @@
 project(m3i)
 
-include_directories(../../prj.parts)
+set(CMAKE_CXX_STANDARD 14)
 
 add_library(m3i m3i.h m3i.cpp)
 

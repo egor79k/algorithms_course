@@ -1,6 +1,6 @@
 project(rational)
 
-include_directories(../../prj.parts)
+set(CMAKE_CXX_STANDARD 14)
 
 add_library(rational rational.h rational.cpp)
 
