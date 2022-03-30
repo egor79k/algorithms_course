@@ -1,6 +1,6 @@
 #include "bitset.h"
 #include <iostream>
-#include <bitset>
+#include <bitset/bitset.h>
 
 BitSet::BitSet(const int len, const bool val) :
     size(len),

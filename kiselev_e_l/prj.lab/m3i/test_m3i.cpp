@@ -1,5 +1,6 @@
 #include <iostream>
 #include <sstream>
+#include <string>
 
 #define DOCTEST_CONFIG_IMPLEMENT_WITH_MAIN
 
@@ -25,6 +26,16 @@ TEST_CASE("construction") {
 
     REQUIRE((m1.Size(0) == size[0] && m1.Size(1) == size[1] && m1.Size(2) == size[2]));
     REQUIRE(0 == m1.At(0, 0, 0));
+
+    SUBCASE("init list constructor") {
+        M3i m2{{{1, 2, 3},
+                {4, 5, 6}},
+                {{7, 8, 9},
+                {0, 1, 2}}};
+
+        CHECK((m2.Size(0) == 2 && m2.Size(1) == 2 && m2.Size(2) == 3));
+        CHECK((m2.At(0, 1, 2) == 6 && m2.At(1, 0, 1) == 8));
+    }
 
     SUBCASE("copy constructor") {
         M3i m2(m1);
@@ -141,6 +152,20 @@ TEST_CASE("shared data") {
         m2.Resize(new_size[0], new_size[1], new_size[2]);
         CHECK((m1.Size(0) == new_size[0] && m1.Size(1) == new_size[1] && m1.Size(2) == new_size[2]));
     }
+
+    SUBCASE("clone") {
+        M3i m3 = m1.Clone();
+
+        CHECK((m1.Size(0) == m3.Size(0) && m1.Size(1) == m3.Size(1) && m1.Size(2) == m3.Size(2)));
+
+        int id[3] = {rand() % size[0], rand() % size[1], rand() % size[2]};
+        int val = rand();
+        int old_val = m3.At(id[0], id[1], id[2]);
+
+        CHECK(m1.At(id[0], id[1], id[2]) == old_val);
+        m1.At(id[0], id[1], id[2]) = val;
+        CHECK(m3.At(id[0], id[1], id[2]) == old_val);
+    }
 }
 
 TEST_CASE("input and output") {
@@ -161,6 +186,12 @@ TEST_CASE("input and output") {
     M3i m2;
 
     str << m1;
+
+    std::string size_str;
+
+    str >> size_str;
+
+    CHECK(size_str == "size:");
 
     CHECK_NOTHROW(str >> m2);
 

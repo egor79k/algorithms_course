@@ -121,8 +121,6 @@ bool Rational::operator>=(const Rational& r) const noexcept {
 
 
 std::istream& Rational::read_from(std::istream& is) {
-    char sep = 0;
-
     is >> nmr;
 
     if (is.get() != '/' || !isdigit(is.peek())) {
