@@ -4,11 +4,15 @@
 typedef unsigned int uint;
 
 class BitSet {
-public:
+private:
     class BitHolder {
     public:
+        BitHolder() = delete;
+        //BitHolder(const BitHolder& other) = delete;
+        //BitHolder(BitHolder&& other) = delete;
+
         BitHolder(uint* const unit_, const uint mask_);
-        // BitHolder(const BitHolder& other) = delete; ??
+
         BitHolder& operator=(const bool val);
 
     private:
@@ -16,7 +20,8 @@ public:
         const uint mask = 0;
     };
 
-    BitSet();
+public:
+    BitSet() = default;
     BitSet(const int len, const bool val=false);
     BitSet(const BitSet& other);
     BitSet(BitSet&& other);
@@ -28,7 +33,7 @@ public:
     void Clear();
     int Size() const;
     void Resize(const int len);
-    void Set(const bool val);
+    void Fill(const bool val);
 
     bool operator[](const int id) const;
     BitHolder operator[](const int id);

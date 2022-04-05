@@ -1,12 +1,12 @@
-#include "bitset.h"
-#include <iostream>
+#include <algorithm>
+
 #include <bitset/bitset.h>
 
 BitSet::BitSet(const int len, const bool val) :
     size(len),
     capacity((len + unit_size - 1) / unit_size),
     data(new uint[(len + unit_size - 1) / unit_size]) {
-    Set(val);
+    Fill(val);
 }
 
 
@@ -89,7 +89,7 @@ void BitSet::Resize(const int len) {
     capacity = (len + unit_size - 1) / unit_size;
     data = new uint[capacity];
 
-    Set(false);
+    Fill(false);
 
     for (int i = 0; i < std::min(capacity, old_capacity); ++i) {
         data[i] = old_data[i];
@@ -97,7 +97,7 @@ void BitSet::Resize(const int len) {
 }
 
 
-void BitSet::Set(const bool val) {
+void BitSet::Fill(const bool val) {
     uint bits_val = val ? ~0 : 0;
 
     for (int i = 0; i < capacity; ++i) {
