@@ -1,4 +1,5 @@
 #include <algorithm>
+#include <stdexcept>
 
 #include <m3i/m3i.h>
 
@@ -14,10 +15,10 @@ M3i::M3i() :
     ptr(new SharedData(nullptr, 0, 0, 0, 1)) {}
 
 
-M3i::M3i(const int x, const int y, const int z) :
+M3i::M3i(int x, int y, int z) :
     ptr(new SharedData(new int[x * y * z], x, y, z, 1)) {
     if (x <= 0 || y <= 0 || z <= 0) {
-        throw WrongSize();
+        throw std::invalid_argument("wrong dimentions");
     }
 
     std::lock_guard<std::mutex> guard(ptr->data_mutex);
@@ -114,9 +115,9 @@ M3i M3i::Clone() const {
 }
 
 
-void M3i::Resize(const int x, const int y, const int z) {
+M3i& M3i::Resize(int x, int y, int z) {
     if (x <= 0 || y <= 0 || z <= 0) {
-        throw WrongSize();
+        throw std::invalid_argument("wrong dimentions");
     }
 
     std::lock_guard<std::mutex> guard(ptr->data_mutex);
@@ -148,29 +149,43 @@ void M3i::Resize(const int x, const int y, const int z) {
     }
 
     delete[] old_data;
+
+    return *this;
 }
 
 
 
-int& M3i::At(const int x, const int y, const int z) {
+int& M3i::At(int x, int y, int z) {
+    if (x < 0 || y < 0 || z < 0 || x >= ptr->size[0] || y >= ptr->size[1] || z >= ptr->size[2]) {
+        throw std::invalid_argument("index is out of range");
+    }
+
     std::lock_guard<std::mutex> guard(ptr->data_mutex);
     return ptr->data[x * ptr->size[1] * ptr->size[2] + y * ptr->size[2] + z];
 }
 
 
-int M3i::At(const int x, const int y, const int z) const {
+int M3i::At(int x, int y, int z) const {
+    if (x < 0 || y < 0 || z < 0 || x >= ptr->size[0] || y >= ptr->size[1] || z >= ptr->size[2]) {
+        throw std::invalid_argument("index is out of range");
+    }
+
     std::lock_guard<std::mutex> guard(ptr->data_mutex);
     return ptr->data[x * ptr->size[1] * ptr->size[2] + y * ptr->size[2] + z];
 }
 
 
-int M3i::Size(const int dim) const {
+int M3i::Size(int dim) const {
+    if (dim < 0 || dim > 2) {
+        throw std::invalid_argument("wrong dimention index");
+    }
+
     std::lock_guard<std::mutex> guard(ptr->data_mutex);
     return ptr->size[dim];
 }
 
 
-void M3i::Fill(const int val) {
+void M3i::Fill(int val) {
     std::lock_guard<std::mutex> guard(ptr->data_mutex);
 
     for (int i = 0; i < Volume(); ++i) {
@@ -218,11 +233,6 @@ std::ostream& M3i::WriteTo(std::ostream& os) const noexcept {
     }
 
     return os;
-}
-
-
-const char* M3i::WrongSize::what() const throw() {
-    return "Wrong size";
 }
 
 

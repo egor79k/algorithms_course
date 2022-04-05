@@ -27,6 +27,13 @@ TEST_CASE("construction") {
     REQUIRE((m1.Size(0) == size[0] && m1.Size(1) == size[1] && m1.Size(2) == size[2]));
     REQUIRE(0 == m1.At(0, 0, 0));
 
+    CHECK_THROWS({M3i m(-size[0], size[1], size[2]);});
+    CHECK_THROWS({M3i m(size[0], -size[1], size[2]);});
+    CHECK_THROWS({M3i m(size[0], size[1], -size[2]);});
+
+    CHECK_THROWS(m1.Size(3));
+    CHECK_THROWS(m1.Size(-1));
+
     SUBCASE("init list constructor") {
         M3i m2{{{1, 2, 3},
                 {4, 5, 6}},
@@ -90,6 +97,10 @@ TEST_CASE("modification") {
 
         m1.At(id[0], id[1], id[2]) = val;
         CHECK(m1.At(id[0], id[1], id[2]) == val);
+
+        CHECK_THROWS(m1.At(size[0], size[1], size[2]));
+        CHECK_THROWS(m1.At(id[0], -id[1], id[2]) = val);
+        CHECK_THROWS(m1.At(id[0], -id[1], id[2]));
     }
 
     SUBCASE("resizing") {
@@ -118,6 +129,8 @@ TEST_CASE("modification") {
                 }
             }
         }
+
+        CHECK_THROWS(m2.Resize(-new_size[0], new_size[1], new_size[2]));
     }
 }
 

@@ -9,7 +9,7 @@
 class M3i {
 public:
     M3i();
-    M3i(const int x, const int y, const int z);
+    M3i(int x, int y, int z);
     M3i(const std::initializer_list<std::initializer_list<std::initializer_list<int>>>& list_3d);
 
     M3i(const M3i& other);
@@ -22,21 +22,17 @@ public:
 
     M3i Clone() const;
     
-    void Resize(const int x, const int y, const int z);
+    M3i& Resize(int x, int y, int z);
     
-    int& At(const int x, const int y, const int z);
-    int At(const int x, const int y, const int z) const;
+    int& At(int x, int y, int z);
+    int At(int x, int y, int z) const;
     
-    int Size(const int dim) const;
+    int Size(int dim) const;
     
-    void Fill(const int val);
+    void Fill(int val);
 
     std::istream& ReadFrom(std::istream& is);
     std::ostream& WriteTo(std::ostream& os) const noexcept;
-
-    class WrongSize: public std::exception {
-        virtual const char* what() const throw();
-    };
 
 private:
     // Clear this copy
