@@ -1,6 +1,6 @@
-#include "rational.h"
-
 #include <cmath>
+
+#include <rational/rational.h>
 
 
 Rational::Rational(const int _nmr, const int _dmr) :
@@ -34,7 +34,7 @@ Rational Rational::operator-() const noexcept {
 }
 
 
-const Rational& Rational::operator+=(const Rational& r) noexcept {
+Rational& Rational::operator+=(const Rational& r) noexcept {
     if (dmr == r.dmr) {
         nmr += r.nmr;
     }
@@ -50,7 +50,7 @@ const Rational& Rational::operator+=(const Rational& r) noexcept {
 }
 
 
-const Rational& Rational::operator-=(const Rational& r) noexcept {
+Rational& Rational::operator-=(const Rational& r) noexcept {
     if (dmr == r.dmr) {
         nmr -= r.nmr;
     }
@@ -66,7 +66,7 @@ const Rational& Rational::operator-=(const Rational& r) noexcept {
 }
 
 
-const Rational& Rational::operator*=(const Rational& r) noexcept {
+Rational& Rational::operator*=(const Rational& r) noexcept {
     nmr *= r.nmr;
     dmr *= r.dmr;
 
@@ -76,7 +76,7 @@ const Rational& Rational::operator*=(const Rational& r) noexcept {
 }
 
 
-const Rational& Rational::operator/=(const Rational& r) {
+Rational& Rational::operator/=(const Rational& r) {
     if (0 == r.nmr) {
         throw DenominatorIsZero();
     }
@@ -87,6 +87,26 @@ const Rational& Rational::operator/=(const Rational& r) {
     shorten();
 
     return *this;
+}
+
+
+Rational& Rational::operator+=(const int r) noexcept {
+    return *this += Rational(r);
+}
+
+
+Rational& Rational::operator-=(const int r) noexcept {
+    return *this -= Rational(r);
+}
+
+
+Rational& Rational::operator*=(const int r) noexcept {
+    return *this *= Rational(r);
+}
+
+
+Rational& Rational::operator/=(const int r) {
+    return *this /= Rational(r);
 }
 
 

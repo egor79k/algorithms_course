@@ -20,10 +20,15 @@ public:
     int denum() const noexcept;
 
     Rational operator-() const noexcept;
-    const Rational& operator+=(const Rational& r) noexcept;
-    const Rational& operator-=(const Rational& r) noexcept;
-    const Rational& operator*=(const Rational& r) noexcept;
-    const Rational& operator/=(const Rational& r);
+    Rational& operator+=(const Rational& r) noexcept;
+    Rational& operator-=(const Rational& r) noexcept;
+    Rational& operator*=(const Rational& r) noexcept;
+    Rational& operator/=(const Rational& r);
+
+    Rational& operator+=(const int r) noexcept;
+    Rational& operator-=(const int r) noexcept;
+    Rational& operator*=(const int r) noexcept;
+    Rational& operator/=(const int r);
 
     bool operator==(const Rational& r) const noexcept;
     bool operator!=(const Rational& r) const noexcept;
@@ -51,23 +56,63 @@ std::istream& operator>>(std::istream& is, Rational& r);
 std::ostream& operator<<(std::ostream& os, const Rational& r) noexcept;
 
 
-inline Rational operator+(const Rational& l, const Rational& r) noexcept {
+inline const Rational operator+(const Rational& l, const Rational& r) noexcept {
     return Rational(l) += r;
 }
 
 
-inline Rational operator-(const Rational& l, const Rational& r) noexcept {
+inline const Rational operator-(const Rational& l, const Rational& r) noexcept {
     return Rational(l) -= r;
 }
 
 
-inline Rational operator*(const Rational& l, const Rational& r) noexcept {
+inline const Rational operator*(const Rational& l, const Rational& r) noexcept {
     return Rational(l) *= r;
 }
 
 
-inline Rational operator/(const Rational& l, const Rational& r) {
+inline const Rational operator/(const Rational& l, const Rational& r) {
     return Rational(l) /= r;
+}
+
+
+inline const Rational operator+(const Rational& l, const int r) noexcept {
+    return Rational(l) += Rational(r);
+}
+
+
+inline const Rational operator-(const Rational& l, const int r) noexcept {
+    return Rational(l) -= Rational(r);
+}
+
+
+inline const Rational operator*(const Rational& l, const int r) noexcept {
+    return Rational(l) *= Rational(r);
+}
+
+
+inline const Rational operator/(const Rational& l, const int r) {
+    return Rational(l) /= Rational(r);
+}
+
+
+inline const Rational operator+(const int l, const Rational& r) noexcept {
+    return Rational(l) += Rational(r);
+}
+
+
+inline const Rational operator-(const int l, const Rational& r) noexcept {
+    return Rational(l) -= Rational(r);
+}
+
+
+inline const Rational operator*(const int l, const Rational& r) noexcept {
+    return Rational(l) *= Rational(r);
+}
+
+
+inline const Rational operator/(const int l, const Rational& r) {
+    return Rational(l) /= Rational(r);
 }
 
 #endif // LAB_RATIONAL_H_
