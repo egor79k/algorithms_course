@@ -21,7 +21,6 @@ M3i::M3i(int x, int y, int z) :
         throw std::invalid_argument("wrong dimentions");
     }
 
-    std::lock_guard<std::mutex> guard(ptr->data_mutex);
     Fill(0);
 }
 
@@ -59,8 +58,6 @@ M3i::M3i(const M3i& other) :
 
 
 M3i& M3i::operator=(const M3i& other) {
-    std::lock_guard<std::mutex> guard(ptr->data_mutex);
-
     Clear();
 
     ptr = other.ptr;
@@ -74,21 +71,15 @@ M3i::M3i(M3i&& other) :
     ptr(other.ptr) {
     ptr->ref_count++;
 
-    std::lock_guard<std::mutex> guard(ptr->data_mutex);
-
     other.Clear();
 }
 
 
 M3i& M3i::operator=(M3i&& other) {
-    std::lock_guard<std::mutex> guard_1(ptr->data_mutex);
-
     Clear();
 
     ptr = other.ptr;
     ptr->ref_count++;
-
-    std::lock_guard<std::mutex> guard_2(ptr->data_mutex);
 
     other.Clear();
 
@@ -97,7 +88,6 @@ M3i& M3i::operator=(M3i&& other) {
 
 
 M3i::~M3i() {
-    std::lock_guard<std::mutex> guard(ptr->data_mutex);
     Clear();
 }
 
@@ -131,7 +121,10 @@ M3i& M3i::Resize(int x, int y, int z) {
         ptr->size[2] = z;
         ptr->data = new int[Volume()];
 
-        Fill(0);
+        //Fill(0);
+        for (int i = 0; i < Volume(); ++i) {
+            ptr->data[i] = 0;
+        }
 
         for (int x_id = 0; x_id < std::min(ptr->size[0], old_size[0]); ++x_id) {
             for (int y_id = 0; y_id < std::min(ptr->size[1], old_size[1]); ++y_id) {
@@ -160,7 +153,6 @@ int& M3i::At(int x, int y, int z) {
         throw std::invalid_argument("index is out of range");
     }
 
-    std::lock_guard<std::mutex> guard(ptr->data_mutex);
     return ptr->data[x * ptr->size[1] * ptr->size[2] + y * ptr->size[2] + z];
 }
 
@@ -170,7 +162,6 @@ int M3i::At(int x, int y, int z) const {
         throw std::invalid_argument("index is out of range");
     }
 
-    std::lock_guard<std::mutex> guard(ptr->data_mutex);
     return ptr->data[x * ptr->size[1] * ptr->size[2] + y * ptr->size[2] + z];
 }
 
@@ -180,7 +171,6 @@ int M3i::Size(int dim) const {
         throw std::invalid_argument("wrong dimention index");
     }
 
-    std::lock_guard<std::mutex> guard(ptr->data_mutex);
     return ptr->size[dim];
 }
 
@@ -198,8 +188,6 @@ std::istream& M3i::ReadFrom(std::istream& is) {
     int size[3] = {};
 
     is >> size[0] >> size[1] >> size[2];
-    
-    std::lock_guard<std::mutex> guard(ptr->data_mutex);
 
     Resize(size[0], size[1], size[2]);
 
@@ -216,8 +204,6 @@ std::istream& M3i::ReadFrom(std::istream& is) {
 
 
 std::ostream& M3i::WriteTo(std::ostream& os) const noexcept {
-    std::lock_guard<std::mutex> guard(ptr->data_mutex);
-
     os << ptr->size[0] << " " << ptr->size[1] << " " << ptr->size[2] << std::endl;
     
     for (int x_id = 0; x_id < ptr->size[0]; ++x_id) {
