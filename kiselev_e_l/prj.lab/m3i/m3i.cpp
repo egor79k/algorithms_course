@@ -218,7 +218,7 @@ std::istream& M3i::ReadFrom(std::istream& is) {
 std::ostream& M3i::WriteTo(std::ostream& os) const noexcept {
     std::lock_guard<std::mutex> guard(ptr->data_mutex);
 
-    os << "size: " << ptr->size[0] << " " << ptr->size[1] << " " << ptr->size[2] << std::endl;
+    os << ptr->size[0] << " " << ptr->size[1] << " " << ptr->size[2] << std::endl;
     
     for (int x_id = 0; x_id < ptr->size[0]; ++x_id) {
         for (int y_id = 0; y_id < ptr->size[1]; ++y_id) {

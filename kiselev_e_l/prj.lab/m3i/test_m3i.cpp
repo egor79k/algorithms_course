@@ -200,12 +200,6 @@ TEST_CASE("input and output") {
 
     str << m1;
 
-    std::string size_str;
-
-    str >> size_str;
-
-    CHECK(size_str == "size:");
-
     CHECK_NOTHROW(str >> m2);
 
     for (int x_id = 0; x_id < size[0]; ++x_id) {
