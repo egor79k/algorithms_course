@@ -34,16 +34,7 @@ int main(int argc, char* argv[]) {
         perror("Wrong arguments number. Must be 2");
         return 1;
     }
-/*
-    if (*(argv[3]) < '1' || *(argv[3]) > '3') {
-        perror("Wrong experiment size. Must be '1', '2' or '3'");
-        return 1;
-    }
-
-    const ExperimentType& exp_type = EXPERIMENT_TYPES[*(argv[3]) - '1'];
-*/
-    //FILE* results_csv = fopen(RESULTS_CSV_FILE, "a");
-
+    
     std::ofstream results_csv(RESULTS_CSV_FILE, std::ios::app);
 
     if (!results_csv.is_open()) {
