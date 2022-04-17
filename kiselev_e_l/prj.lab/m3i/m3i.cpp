@@ -20,8 +20,12 @@ M3i::M3i(int x, int y, int z) :
     if (x <= 0 || y <= 0 || z <= 0) {
         throw std::invalid_argument("wrong dimentions");
     }
+}
 
-    Fill(0);
+
+M3i::M3i(int x, int y, int z, int val) :
+    M3i(x, y, z) {
+    Fill(val);
 }
 
 

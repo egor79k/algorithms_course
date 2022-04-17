@@ -23,9 +23,14 @@ TEST_CASE("construction") {
     int size[3] = {rand() % 100 + 1, rand() % 100 + 1, rand() % 100 + 1};
 
     M3i m1(size[0], size[1], size[2]);
-
     REQUIRE((m1.Size(0) == size[0] && m1.Size(1) == size[1] && m1.Size(2) == size[2]));
-    REQUIRE(0 == m1.At(0, 0, 0));
+
+    SUBCASE("filling constructor") {
+        int fill_val = rand();
+        M3i m2(size[0], size[1], size[2], fill_val);
+        REQUIRE((m2.Size(0) == size[0] && m2.Size(1) == size[1] && m2.Size(2) == size[2]));
+        REQUIRE(fill_val == m2.At(0, 0, 0));
+    }
 
     CHECK_THROWS({M3i m(-size[0], size[1], size[2]);});
     CHECK_THROWS({M3i m(size[0], -size[1], size[2]);});

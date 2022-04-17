@@ -26,6 +26,8 @@ TEST_CASE("") {
     bs1[0] = true;
     bs1[19] = true;
     
+    auto x = bs1[4];
+
     print_bs(bs1);
 
     bs1 >>= 1;

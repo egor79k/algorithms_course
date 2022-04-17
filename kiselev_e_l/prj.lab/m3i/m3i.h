@@ -10,6 +10,7 @@ class M3i {
 public:
     M3i();
     M3i(int x, int y, int z);
+    M3i(int x, int y, int z, int val);
     M3i(const std::initializer_list<std::initializer_list<std::initializer_list<int>>>& list_3d);
 
     M3i(const M3i& other);
