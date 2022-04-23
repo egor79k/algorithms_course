@@ -1,4 +1,5 @@
 #include <algorithm>
+#include <stdexcept>
 
 #include <bitset/bitset.h>
 
@@ -80,7 +81,7 @@ int BitSet::Size() const {
 
 void BitSet::Resize(const int len) {
     if (len < 0) {
-        return;
+        throw std::invalid_argument("Negative size");
     }
 
     const int old_capacity = capacity;
@@ -110,12 +111,20 @@ void BitSet::Fill(const bool val) {
 
 
 bool BitSet::operator[](const int id) const {
+    if (id < 0 || id >= size) {
+        throw std::invalid_argument("Index out of bounds");
+    }
+    
     return data[id / unit_size] & (first_bit >> (id % unit_size));
 }
 
 
 BitSet::BitHolder BitSet::operator[](const int id) {
-    return BitHolder(data + id / unit_size, first_bit >> (id % unit_size));
+    if (id < 0 || id >= size) {
+        throw std::invalid_argument("Index out of bounds");
+    }
+
+    return BitHolder(*this, id);
 }
 
 
@@ -135,7 +144,7 @@ const BitSet BitSet::operator~() {
 
 BitSet& BitSet::operator|=(const BitSet& other) {
     if (size != other.size) {
-        return *this;
+        throw std::invalid_argument("Different sizes");
     }
 
     for (int i = 0; i < capacity; ++i) {
@@ -148,7 +157,7 @@ BitSet& BitSet::operator|=(const BitSet& other) {
 
 BitSet& BitSet::operator&=(const BitSet& other) {
     if (size != other.size) {
-        return *this;
+        throw std::invalid_argument("Different sizes");
     }
 
     for (int i = 0; i < capacity; ++i) {
@@ -161,7 +170,7 @@ BitSet& BitSet::operator&=(const BitSet& other) {
 
 BitSet& BitSet::operator^=(const BitSet& other) {
     if (size != other.size) {
-        return *this;
+        throw std::invalid_argument("Different sizes");
     }
 
     for (int i = 0; i < capacity; ++i) {
@@ -214,12 +223,15 @@ BitSet& BitSet::operator<<=(const int shift) {
 }
 
 
-BitSet::BitHolder::BitHolder(uint* const unit_, const uint mask_) :
-    unit(unit_),
-    mask(mask_) {}
+BitSet::BitHolder::BitHolder(BitSet& bs_, const uint id_) :
+    bs(bs_),
+    id(id_) {}
 
 
 BitSet::BitHolder& BitSet::BitHolder::operator=(const bool val) {
+    uint* unit = bs.data + id / bs.unit_size;
+    const uint mask = bs.first_bit >> (id % bs.unit_size);
+
     if (val) {
         *unit |= mask;
     }
@@ -228,6 +240,11 @@ BitSet::BitHolder& BitSet::BitHolder::operator=(const bool val) {
     }
 
     return *this;
+}
+
+
+BitSet::BitHolder::operator bool() const {
+    return bs.data[id / bs.unit_size] & (bs.first_bit >> (id % bs.unit_size));
 }
 
 
@@ -262,6 +279,29 @@ const BitSet operator<<(const BitSet& l, const int shift) {
 
 
 std::istream& operator>>(std::istream& is, BitSet& bs) {
+    std::string input;
+    is >> input;
+
+    bs.Clear();
+    bs.Resize(input.size());
+
+    for (int i = 0; i < input.size(); ++i) {
+        switch (input[i]) {
+            case '0':
+            bs[i] = false;
+            break;
+
+            case '1':
+            bs[i] = true;
+            break;
+
+            default:
+            is.setstate(std::ios_base::failbit);
+            return is;
+            break;
+        }
+    }
+
     return is;
 }
 

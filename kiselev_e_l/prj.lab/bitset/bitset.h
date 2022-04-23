@@ -7,20 +7,7 @@ typedef unsigned int uint;
 
 class BitSet {
 private:
-    class BitHolder {
-    public:
-        BitHolder() = delete;
-        //BitHolder(const BitHolder& other) = delete;
-        //BitHolder(BitHolder&& other) = delete;
-
-        BitHolder(uint* const unit_, const uint mask_);
-
-        BitHolder& operator=(const bool val);
-
-    private:
-        uint* const unit = 0;
-        const uint mask = 0;
-    };
+    class BitHolder;
 
 public:
     BitSet() = default;
@@ -48,6 +35,23 @@ public:
     BitSet& operator<<=(const int shift);
 
 private:
+    class BitHolder {
+    public:
+        BitHolder() = delete;
+        BitHolder(BitSet& bs_, const uint id_);
+        BitHolder(const BitHolder& other) = default;
+        BitHolder(BitHolder&& other) = default;
+        ~BitHolder() = default;
+        BitHolder& operator=(const BitHolder& other) = default;
+        BitHolder& operator=(BitHolder&& other) = default;
+        BitHolder& operator=(const bool val);
+        operator bool() const;
+
+    private:
+        BitSet& bs;
+        const uint id = 0;
+    };
+
     static const int unit_size = 8 * sizeof(uint); // Minimal indivisible memory unit
     static const uint first_bit = 1 << (unit_size - 1); // 10...0
 
