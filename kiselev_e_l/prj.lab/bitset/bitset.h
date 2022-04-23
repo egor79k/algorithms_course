@@ -1,6 +1,8 @@
 #ifndef LAB_BITSET_H
 #define LAB_BITSET_H
 
+#include <iostream>
+
 typedef unsigned int uint;
 
 class BitSet {
@@ -60,5 +62,8 @@ const BitSet operator&(const BitSet& l, const BitSet& r);
 const BitSet operator^(const BitSet& l, const BitSet& r);
 const BitSet operator>>(const BitSet& l, const int shift);
 const BitSet operator<<(const BitSet& l, const int shift);
+
+std::istream& operator>>(std::istream& is, BitSet& bs);
+std::ostream& operator<<(std::ostream& os, const BitSet& bs);
 
 #endif // LAB_BITSET_H

@@ -259,3 +259,17 @@ const BitSet operator<<(const BitSet& l, const int shift) {
     BitSet result(l);
     return result << shift;
 }
+
+
+std::istream& operator>>(std::istream& is, BitSet& bs) {
+    return is;
+}
+
+
+std::ostream& operator<<(std::ostream& os, const BitSet& bs) {
+    for(int i = 0; i < bs.Size(); ++i) {
+        os << bs[i];
+    }
+
+    return os;
+}
