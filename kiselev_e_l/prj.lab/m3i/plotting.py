@@ -45,19 +45,29 @@ colors = ['red', 'orange', 'yellow', 'green', 'lightblue', 'blue', 'purple']
 
 def plot_res(id, title, size):
     plt.xticks(rotation=50)
-    # print("Mean time per volume unit:", np.mean(results[:,id,:] / size, axis=1))
     bp = plt.boxplot(results[:,id,:].T / size,
-        notch=True,
+        # whis=(1,99),
         labels=labels,
         patch_artist=True)
     for box, color in zip(bp['boxes'], colors):
         box.set_facecolor(color)
     plt.title(title)
+    plt.xlabel("author")
+    plt.ylabel("nanoseconds per volume unit")
     plt.show()
 
 plot_res(0, "Small 10^3", 10**3)
 plot_res(1, "Medium 100^3", 100**3) 
 plot_res(2, "Huge 900^3", 900**3)
 
-print("Mean time for T*:", np.mean(results[:6,:,:], axis=(0, 2)))
+print("Mean time for T* without filling:", np.mean(results[:3,:,:], axis=(0, 2)))
+print("Mean time for T* with filling:", np.mean(results[3:6,:,:], axis=(0, 2)))
 print("Mean time for T***:", np.mean(results[6,:,:], axis=(1)))
+
+results[:,0] = results[:,0] / 10**3
+results[:,1] = results[:,1] / 100**3
+results[:,2] = results[:,2] / 900**3
+
+print("\nMean time per volume unit for T* without filling:", np.mean(results[:3,:,:], axis=(0, 2)))
+print("Mean time per volume unit for T* with filling:", np.mean(results[3:6,:,:], axis=(0, 2)))
+print("Mean time per volume unit for T***:", np.mean(results[6,:,:], axis=(1)))
