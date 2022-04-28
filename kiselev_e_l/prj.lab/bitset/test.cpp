@@ -8,41 +8,157 @@
 
 TEST_SUITE_BEGIN("bitset");
 
-TEST_CASE("") {
-    const int sz = 139;
-    BitSet bs1(sz);
+bool operator==(const BitSet& l, const BitSet& r) {
+    if (l.Size() != r.Size()) {
+        return false;
+    }
 
-    std::cout << bs1 << '\n';
+    for (int i = 0; i < l.Size(); ++i) {
+        if (l[i] != r[i]) {
+            return false;
+        }
+    }
 
-    bs1[3] = true;
-    bs1[6] = true;
-    bs1[1] = true;
-    bs1[0] = true;
-    bs1[19] = true;
-    
-    auto x = bs1[4];
+    return true;
+}
 
-    std::cout << bs1 << '\n';
 
-    bs1 >>= 1;
+TEST_CASE("constructing") {
+    srand(42);
 
-    std::cout << bs1 << '\n';
+    SUBCASE("default") {
+        BitSet bs;
+        CHECK(bs.Size() == 0);
+    }
 
-    bs1 >>= 5;
+    const int size = rand() % 1000;
+    BitSet bs(size, true);
 
-    std::cout << bs1 << '\n';
+    CHECK(bs.Size() == size);
 
-    bs1 >>= 50;
+    for (int i = 0; i < size; ++i) {
+        CHECK(bs[i] == true);
+    }
 
-    std::cout << bs1 << '\n';
+    CHECK_THROWS(bs[-1]);
+    CHECK_THROWS(bs[size]);
+    CHECK_THROWS(bs[-1] = false);
+    CHECK_THROWS(bs[size] = false);
 
-    bs1 <<= 55;
+    for (int i = 0; i < size / 2; ++i) {
+        bs[rand() % size] = false;
+    }
 
-    std::cout << bs1 << '\n';
+    SUBCASE("copy") {
+        BitSet bs1(bs);
+        CHECK(bs1 == bs);
 
-    bs1 <<= 1;
+        BitSet bs2 = bs;
+        CHECK(bs2 == bs);
 
-    std::cout << bs1 << '\n';
+        BitSet bs3(std::move(bs1));
+        CHECK(bs1.Size() == 0);
+        CHECK(bs3 == bs);
+
+        BitSet bs4 = std::move(bs2);
+        CHECK(bs2.Size() == 0);
+        CHECK(bs4 == bs);
+    }
+}
+
+
+TEST_CASE("modification") {
+    const int size = rand() % 1000;
+
+    SUBCASE("clear") {
+        BitSet bs(size);
+        bs.Clear();
+        CHECK(bs.Size() == 0);
+        CHECK_THROWS(bs[0]);
+    }
+
+    SUBCASE("resize") {
+        BitSet bs(size);
+        const int new_size = rand() % 1000;
+        bs.Resize(new_size);
+        BitSet bs1(new_size);
+        CHECK(bs == bs1);
+        CHECK_THROWS(bs.Resize(-1));
+    }
+
+    SUBCASE("fill") {
+        BitSet bs(size);
+        bs.Fill(true);
+        BitSet bs1(size, true);
+        CHECK(bs == bs1);
+    }
+}
+
+
+TEST_CASE("operations") {
+    const int size = rand() % 1000;
+
+    BitSet bs1(size);
+
+    for (int i = 0; i < size / 2; ++i) {
+        bs1[rand() % size] = true;
+    }
+
+    BitSet bs2(size);
+
+    for (int i = 0; i < size / 2; ++i) {
+        bs2[rand() % size] = true;
+    }
+
+    BitSet bs3(size + 1);
+
+    CHECK_THROWS(bs1 |= bs3);
+    CHECK_THROWS(bs1 &= bs3);
+    CHECK_THROWS(bs1 ^= bs3);
+    CHECK_THROWS(bs1 | bs3);
+    CHECK_THROWS(bs1 & bs3);
+    CHECK_THROWS(bs1 ^ bs3);
+
+    BitSet bs_res(size);
+
+    for (int i = 0; i < size; ++i) {
+        bs_res[i] = bs1[i] | bs2[i];
+    }
+
+    CHECK((bs1 | bs2) == bs_res);
+
+    bs1 |= bs2;
+
+    CHECK(bs1 == bs_res);
+
+    for (int i = 0; i < size; ++i) {
+        bs_res[i] = bs1[i] & bs2[i];
+    }
+
+    CHECK((bs1 & bs2) == bs_res);
+
+    bs1 &= bs2;
+
+    CHECK(bs1 == bs_res);
+
+    for (int i = 0; i < size; ++i) {
+        bs_res[i] = bs1[i] ^ bs2[i];
+    }
+
+    CHECK((bs1 ^ bs2) == bs_res);
+
+    bs1 ^= bs2;
+
+    CHECK(bs1 == bs_res);
+}
+
+
+TEST_CASE("special cases") {
+    const int size = rand() % 1000;
+    BitSet bs(size);
+
+    auto flag = bs[size / 2];
+    CHECK(flag == false);
 }
 
 TEST_SUITE_END();

@@ -25,7 +25,9 @@ BitSet::BitSet(BitSet&& other) :
     size(other.size),
     capacity(other.capacity),
     data(other.data) {
-    other.Clear();
+    other.size = 0;
+    other.capacity = 0;
+    other.data = nullptr;
 }
 
 
@@ -56,7 +58,9 @@ BitSet& BitSet::operator=(BitSet&& other) {
     capacity = other.capacity;
     data = other.data;
 
-    other.Clear();
+    other.size = 0;
+    other.capacity = 0;
+    other.data = nullptr;
 
     return *this;
 }
@@ -87,6 +91,7 @@ void BitSet::Resize(const int len) {
     const int old_capacity = capacity;
     uint* old_data = data;
     
+    size = len;
     capacity = (len + unit_size - 1) / unit_size;
     data = new uint[capacity];
 
