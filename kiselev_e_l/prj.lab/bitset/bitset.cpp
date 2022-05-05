@@ -84,8 +84,8 @@ int BitSet::Size() const {
 
 
 void BitSet::Resize(const int len) {
-    if (len < 0) {
-        throw std::invalid_argument("Negative size");
+    if (len <= 0) {
+        throw std::invalid_argument("Wrong size");
     }
 
     const int old_capacity = capacity;
@@ -286,6 +286,11 @@ const BitSet operator<<(const BitSet& l, const int shift) {
 std::istream& operator>>(std::istream& is, BitSet& bs) {
     std::string input;
     is >> input;
+
+    if (input.size() == 0) {
+        is.setstate(std::ios_base::failbit);
+        return is;
+    }
 
     bs.Clear();
     bs.Resize(input.size());

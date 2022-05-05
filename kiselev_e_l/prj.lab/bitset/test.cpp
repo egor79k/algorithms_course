@@ -1,4 +1,5 @@
 #include <iostream>
+#include <vector>
 
 #define DOCTEST_CONFIG_IMPLEMENT_WITH_MAIN
 #include <doctest/doctest.h>
@@ -83,7 +84,7 @@ TEST_CASE("modification") {
         bs.Resize(new_size);
         BitSet bs1(new_size);
         CHECK(bs == bs1);
-        CHECK_THROWS(bs.Resize(-1));
+        CHECK_THROWS(bs.Resize(0));
     }
 
     SUBCASE("fill") {
@@ -150,6 +151,53 @@ TEST_CASE("operations") {
     bs1 ^= bs2;
 
     CHECK(bs1 == bs_res);
+}
+
+
+TEST_CASE("input/output") {
+    std::vector<std::string> eof_input{"10101001110111",
+        " 01100101010"};
+    std::vector<std::string> good_input{"111101010100101 ",
+        "1100101001010  "};
+
+    std::vector<std::string> fail_input{"yagabka ",
+        "101010010210101",
+        "10010101r01010101",
+        ""};
+
+    std::vector<std::string> output{"011001001101101",
+        "101010010110101",
+        "10010101001010101",
+        "0",
+        "1"};
+
+    BitSet bs;
+
+    for (auto str : eof_input) {
+        std::stringstream istr(str);
+        istr >> bs;
+        CHECK(istr.eof());
+    }
+
+    for (auto str : good_input) {
+        std::stringstream istr(str);
+        istr >> bs;
+        CHECK(istr.good());
+    }
+
+    for (auto str : fail_input) {
+        std::stringstream istr(str);
+        istr >> bs;
+        CHECK(istr.fail());
+    }
+
+    for (auto str : output) {
+        std::stringstream istr(str);
+        istr >> bs;
+        CHECK(istr.eof());
+        istr << bs;
+        CHECK(istr.str() == str);
+    }
 }
 
 
