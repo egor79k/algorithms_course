@@ -9,6 +9,7 @@
 #include <m3i/m3i.h>
 
 
+// Connected-Component Labeling
 class CCLSolver {
 public:
     void readFromStr(std::istream& istr) {
@@ -93,9 +94,9 @@ public:
 
                     unsigned char chan = 255 * static_cast<float>(label) / curr_label;
 
-                    img[h * width * channels + w * channels + 0] = 255;
-                    img[h * width * channels + w * channels + 1] = chan;
-                    img[h * width * channels + w * channels + 2] = 255 - chan;
+                    img[h * width * channels + w * channels + 0] = 255 - chan;
+                    img[h * width * channels + w * channels + 1] = 255 - chan;
+                    img[h * width * channels + w * channels + 2] = chan;
                 }
             }
 
@@ -180,7 +181,7 @@ int main(int argc, char* argv[]) {
         }
 
         solver.writeToImg(argc - 1, &(argv[1]));
-        solver.writeToStr(std::cout);
+        // solver.writeToStr(std::cout);
     }
     else {
         solver.readFromStr(std::cin);
